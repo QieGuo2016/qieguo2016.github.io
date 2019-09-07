@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>茄果的博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_859455_eaq7v6w8ktj.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-title">
+
+        </div>
+        <nav class="header-nav">
+            
+            <a href="/" class="header-nav-link" >
+                首页
+            </a>
+            
+
+            
+            <a href="/archives" class="header-nav-link">
+                归档
+            </a>
+            
+
+            
+
+            
+            <a href="/about/" class="header-nav-link">
+                关于
+            </a>
+            
+        </nav>
+    </div>
+</header>
+<header class="mobile-header">
+    <div class="mobile-nav">
+        <div class="mobile-nav-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-nav-title">
+            <a href="/" class="mobile-nav-title-link">茄果's Blog</a>
+        </div>
+
+    </div>
+    <nav class="mobile-menu">
+        <ul class="mobile-menu-list">
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-home"></i>
+                <a href="/" class="mobile-nav-link">首页</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-archive"></i>
+                <a href="/archives" class="mobile-nav-link">归档</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-tag"></i>
+                <a href="/tags" class="mobile-nav-link">标签</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-about"></i>
+                <a href="/about/" class="mobile-nav-link">关于</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="main">
+    <div class="content-inner">
+        <div class="posts">
+    <article class="post-whole">
+        <div class="post-title">
+            <h2 class="title">基本数据结构之数组与链表，队列与栈</h2>
+            <div class="post-meta">
+                <span class="post-time">2016-06-11</span>
+                
+                <span class="post-category">
+                    
+                    <a class="category" href="/categories/数据结构/">数据结构</a>
+                    
+                </span>
+                
+                <span class="post-visit"> 阅读次数：<span id="busuanzi_value_page_pv"></span></span>
+            </div>
+        </div>
+        <div class="post-toc" id="post-toc">
+    <strong class="post-toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Array"><span class="toc-text">Array</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Chain"><span class="toc-text">Chain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stack"><span class="toc-text">Stack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#queue"><span class="toc-text">queue</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a>
+    <div class="back-to-top" id="back-to-top">
+        <a href="javascript:void(0);">回到顶部</a>
+    </div>
+</div>
+        <div class="post-content">
+            <p>线性表是最基本、最简单、也是最常用的一种数据结构。<br>线性表中数据元素之间的关系是一对一的关系，即除了第一个和最后一个数据元素之外，其它数据元素都是首尾相接的。<br>线性表有两种存储方式，一种是顺序存储结构，另一种是链式存储结构。<br>顺序存储结构的线性表也称为连续线性表，也就是所有元素依次存储在一片连续的存储空间内。<br>链式存储结构的线性表里面，元素与元素通过地址指针来将各个元素链接在一起。</p>
+<a id="more"></a>
+
+<ul>
+<li><a href="#array">数组</a></li>
+<li><a href="#chain">链表</a></li>
+<li><a href="#stack">堆栈</a></li>
+<li><a href="#queue">队列</a></li>
+</ul>
+<p>以上4种数据结构都是线性表结构。</p>
+<h3 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h3><p>计算机中的数组与数学中的数组概念类似，只是计算机中的数组的值可以是多种类型。<br>一般语言中的数组，指的都是连续线性表，由于数据保存在连续的内存块中、数组头保存了数组的地址，所以数据的定位是非常方便的。<br>根据数组地址+元素的偏移量算出指定元素的内存地址，直接移动指针到该处即可进行数据的读写。</p>
+<p>但是由于数据存储的空间连续，所以对元素的增删就变得非常麻烦，比如要在第五位插入一个元素，那么第五位后面的所有元素都要向后挪一个数组空间的位置。<br>如果是删除元素，那么就需要将后面的元素依次向前挪一个位置。实际操作中我们还需要额外的临时空间来保存要移动的元素，然后依次移动各个元素，相当繁琐。</p>
+<p>但js与传统数组不一样，js中的数据结构就只有一种：哈希表。哈希表用来描述Object，其他所有的数据结构，都是建立在哈希表上的伪结构。<br>js中的数组，其实就是key为index的对象，其底层也就是哈希表。<br>所以js中的数组并不储存在一片连续的存储空间里，因此数组的操作也跟传统的数组操作不一样。</p>
+<blockquote>
+<p>ES6中的typed Array和ArrayBuffer是存储连续内存的数组，与传统意义上的数组一样。</p>
+</blockquote>
+<p><img src="resource/Array001.png" alt="数组插入动画"></p>
+<p>js中封装好的操作数组元素的方法有：</p>
+<ul>
+<li>push：向数组末尾添加<strong>任意</strong>个元素，@return 修改后的新数组长度</li>
+<li>pop：从数组末尾移除最后<strong>一个</strong>元素，@return 被移除的元素</li>
+<li>shift：从数组头部移除最前<strong>一个</strong>元素，@return 被移除的元素</li>
+<li>unshift：向数组头部添加<strong>任意</strong>个元素，@return 修改后的新数组长度</li>
+<li>splice：前2个参数为操作起始点和删除个数，第3个参数开始是插入的元素，@return 被删除项组成的数组</li>
+<li>sort和reverse：数组排序和反转，其中排序方法接受一个排序函数，可以自定义排序规则。例如：<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array.sort(<span class="function"><span class="keyword">function</span> (<span class="params">pre, next</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">return</span> pre - next; <span class="comment">// 返回负数则pre在前，返回正数则pre在后 </span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>注: 以上这些操作都是对数组元素的操作，是直接改变原数组的方法；以下方法不改变原数组，只返回新数组：</p>
+<ul>
+<li>concat：连接两个或者多个数组。</li>
+<li>slice：从当前数组中截取得到一个新数组。</li>
+</ul>
+<p>还有一些比较实用的方法：</p>
+<ul>
+<li><p>forEach：对数组的所有元素都执行传入函数，无返回值</p>
+</li>
+<li><p>map: 对数组的所有元素都执行传入函数，@return 函数返回值组成的数组，也就是数组映射</p>
+</li>
+<li><p>filter：对数组的所有元素都执行传入函数，@return 函数返回值为真的元素组成的数组，也就是数组过滤</p>
+</li>
+<li><p>every：对数组的所有元素都执行传入函数，@return 当所有元素的返回值都为真时，返回真。数组全体的与操作</p>
+</li>
+<li><p>some：对数组的所有元素都执行传入函数，@return 当任一元素的返回值为真是，返回真。数组全体的或操作。<br>以上传入函数的参数均为 item、index、array，后两项为可选参数。例如平方映射函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array.map(<span class="function"><span class="keyword">function</span> (<span class="params">item,index,array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> item * item;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>reduce：从头到尾依次迭代，将每次迭代的结果作为输入与当前元素执行传入函数。</p>
+</li>
+<li><p>reduceRight：从尾到头依次迭代，刚好与reduce相反。<br>例如一个数组求和：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array.reduce(<span class="function"><span class="keyword">function</span> (<span class="params">prev,next,index,array</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> prev + next;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="Chain"><a href="#Chain" class="headerlink" title="Chain"></a>Chain</h3><p>因为传统数组的存储空间都是连续的，元素的增删操作非常麻烦，所以链表这种数据结构就被设计出来了。<br>链表元素的存储空间都是分散的，每个元素除了保存本身的值之外，还保存着其他元素的内存地址，根据地址就可以将整个链表串起来了。<br>根据这个特点，只要我们改写一个元素指向的内存地址指向一个新的链表元素，然后设置新的链表元素指向原来元素指向的地址，就插入了一个链表元素。<br>由于链表的所有元素的实际内存地址并不连续，所以也就不必像定义数组一样声明其存储空间了，换言之链表占用的是动态空间。</p>
+<p><img src="resource/Chain001.jpg" alt="链表插入动画"></p>
+<p>js中数组本身就不是连续的，所以在js中直接使用数组即可，没必要使用链表结构。</p>
+<p>为了加深理解，这里也给出一个在js中通过对象来模拟链表结构的写法，更多方法参考<a href="./chain.js">chain.js</a>文件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Chain</span>(<span class="params">key, value</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.next = <span class="literal">null</span>;</span><br><span class="line">	<span class="keyword">this</span>.key = key;</span><br><span class="line">	<span class="keyword">this</span>.value = value;</span><br><span class="line">	<span class="keyword">this</span>.length = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 插入元素</span></span><br><span class="line">Chain.prototype.insertAfter = <span class="function"><span class="keyword">function</span> (<span class="params">pos, key, value</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> currentObj = <span class="keyword">this</span>;</span><br><span class="line">	<span class="keyword">var</span> addObj = &#123;</span><br><span class="line">		key  : key,</span><br><span class="line">		value: value</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (currentObj.key !== pos) &#123;</span><br><span class="line">		currentObj = currentObj.next;</span><br><span class="line">	&#125;</span><br><span class="line">	addObj.next = currentObj.next;</span><br><span class="line">	currentObj.next = addObj;</span><br><span class="line">	<span class="keyword">this</span>.length++;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除元素</span></span><br><span class="line">Chain.prototype.delele = <span class="function"><span class="keyword">function</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> last = <span class="literal">null</span>;</span><br><span class="line">	<span class="keyword">var</span> currentObj = <span class="keyword">this</span>;</span><br><span class="line">	<span class="keyword">while</span> (currentObj.key !== key) &#123;</span><br><span class="line">		last = currentObj;</span><br><span class="line">		currentObj = currentObj.next;</span><br><span class="line">	&#125;</span><br><span class="line">	last.next = currentObj.next;</span><br><span class="line">	<span class="keyword">this</span>.length--;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查找元素</span></span><br><span class="line">Chain.prototype.find = <span class="function"><span class="keyword">function</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> currentObj = <span class="keyword">this</span>;</span><br><span class="line">	<span class="keyword">while</span> (currentObj.key !== key) &#123;</span><br><span class="line">		currentObj = currentObj.next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> currentObj.value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上所说的都是单向链表，根据上述原理双向链表也很容易实现，这里就不再赘述了。</p>
+<h3 id="Stack"><a href="#Stack" class="headerlink" title="Stack"></a>Stack</h3><p>堆栈是一种特殊的线性表，其特性是后进先出，可以类比弹夹，先塞进的子弹在最后才出来。<br>js中可以用数组来模拟栈结构的先进后出，使用到的方法有push、pop。</p>
+<p>如果我说堆栈可能是计算机程序中应用最多的数据结构，你会不会说我扯淡？平时我们写的代码里面，根本就没怎么用到堆栈这种数据结构呀。<br>但是，回忆一下单片机里面的汇编程序设计里面，是不是通篇都是堆栈这个词呢？<br>在函数调用、跳转、循环的时候，我们都要做现场保护，所有现场数据都要压入堆栈里面，跳转之后再将栈顶的现场数据恢复回来。<br>但是，高级语言里面，这种流程控制都已经封装到底层里面，上层编程者无需再关心具体实现，所以即使堆栈遍布程序每个角落我们依然没有任何感知。</p>
+<p>虽然普通的现场保护不用我们手工控制，但是在写递归函数的时候我们可以照葫芦画瓢，在进入递归前使用堆栈来保存各种过程状态，出递归的时候读取堆栈的状态。</p>
+<p>递归的堆栈可能使用场景不多，在前端处理html模板的时候倒是可以用堆栈来匹配成对的括号。遇到开括号则将其压入，遇到匹配的闭括号则压出相应的开括号，否则继续压入。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pairTest</span>(<span class="params">str</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> open = &#123;</span><br><span class="line">		<span class="string">'&lt;'</span>: <span class="string">'&gt;'</span>,</span><br><span class="line">		<span class="string">'&#123;'</span>: <span class="string">'&#125;'</span>,</span><br><span class="line">		<span class="string">'('</span>: <span class="string">')'</span>,</span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="keyword">var</span> close = &#123;</span><br><span class="line">		<span class="string">'&gt;'</span>: <span class="string">'&lt;'</span>,</span><br><span class="line">		<span class="string">'&#125;'</span>: <span class="string">'&#123;'</span>,</span><br><span class="line">		<span class="string">')'</span>: <span class="string">'('</span>,</span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="keyword">var</span> stack = [];</span><br><span class="line">	<span class="keyword">var</span> result = [];</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, len = str.length; i &lt; len; i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (open[str[i]]) &#123;</span><br><span class="line">			stack.push(&#123;<span class="attr">index</span>: i, <span class="attr">value</span>: str[i]&#125;);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (close[str[i]]) &#123;</span><br><span class="line">			<span class="keyword">if</span> (close[str[i]] === stack[stack.length - <span class="number">1</span>].value) &#123;</span><br><span class="line">				<span class="keyword">var</span> temp = stack.pop();</span><br><span class="line">				result.push(str.slice(temp.index + <span class="number">1</span>, i));</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'匹配出错！'</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="queue"><a href="#queue" class="headerlink" title="queue"></a>queue</h3><p>队列也是一种特殊的线性表，其特性是先进先出，就跟日常中的排队一样，先排先得。<br>js中可以用数组来模拟队列的先进先出，使用到的方法有push、shift。也可以用unshift+pop的方法来模拟反向队列。</p>
+<p>队列在计算机程序的应用也非常广，由于其先进先出的特点，一般用在任务控制方面，也就是任务队列。<br>JS 是单线程的，但是却能执行异步任务，这主要是因为 JS 中存在事件循环（Event Loop）和任务队列（Task Queue）。<br>简单一点来说明一下：</p>
+<p>关于线程：运行我们写的js代码的线程就是主线程，除此之外还有io线程、定时器线程等各种工作线程。</p>
+<p>主线程一直在运行，主程序会到任务队列中去取任务来执行；任务队列中的任务是由各个工作线程添加进去的。</p>
+<p>举例：<br>主线程：起床、开煮蛋器煮蛋，再开烤箱烤面包，然后去刷牙<br>工作线程（煮蛋器）：煮蛋，煮好之后给出一个信号，尖叫三声让主人来吃<br>工作线程（烤箱）：烤面包，烤好之后给出一个信号，尖叫两声让主人来吃<br>吃蛋和吃面包就是两个任务，他们会被工作线程塞到任务队列里面去。</p>
+<p>主线程同时只能做一件事情，没办法一遍刷牙一遍去吃蛋，所以要等刷完牙之后才能去吃蛋。<br>至于先吃蛋还是先吃面包，那就要看任务的先后了，也就是先进先出。</p>
+<p>关于队列就说这么一点了，日后有补充再来补吧。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>由于js这门语言隐藏了很多底层实现，所以基础的数据结构在编程中的直接应用并不多，关于基础数据结构就介绍到这里了。</p>
+
+        </div>
+        
+        <div class="post-tag">
+            
+            <a class="tag" href="/tags/数据结构/" title="数据结构">数据结构</a>
+            
+            <a class="tag" href="/tags/js/" title="js">js</a>
+            
+        </div>
+        
+    </article>
+</div>
+<div class="paginator">
+    
+        
+            <a class="prev" href="/2016/07/13/js对象与哈希表/">
+                <i class="iconfont icon-prev"></i>
+                <span class="nav-default">js中的对象与哈希表</span>
+                <span class="nav-mobile">上一篇</span>
+            </a>
+        
+        
+    
+</div>
+<div id="comment-container"></div>
+    </div>
+</div>
+<footer class="footer-social">
+    
+
+    
+
+    
+
+    <div class="footer-copyright">
+        <p class="time-line">
+            &copy;
+            
+            
+            2019
+            &nbsp;<i class="iconfont icon-heart"></i>&nbsp;
+            <a target="_blank" href="https://github.com/iJinxin">茄果</a>
+        </p>
+        <p class="theme-info">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme -
+            <a target="_blank" href="https://github.com/iJinxin/hexo-theme-sky">Sky</a>
+        </p>
+    </div>
+</footer>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    
+
+</script>
+</html>

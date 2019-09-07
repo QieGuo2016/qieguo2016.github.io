@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>茄果的博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_859455_eaq7v6w8ktj.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-title">
+
+        </div>
+        <nav class="header-nav">
+            
+            <a href="/" class="header-nav-link" >
+                首页
+            </a>
+            
+
+            
+            <a href="/archives" class="header-nav-link">
+                归档
+            </a>
+            
+
+            
+
+            
+            <a href="/about/" class="header-nav-link">
+                关于
+            </a>
+            
+        </nav>
+    </div>
+</header>
+<header class="mobile-header">
+    <div class="mobile-nav">
+        <div class="mobile-nav-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-nav-title">
+            <a href="/" class="mobile-nav-title-link">茄果's Blog</a>
+        </div>
+
+    </div>
+    <nav class="mobile-menu">
+        <ul class="mobile-menu-list">
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-home"></i>
+                <a href="/" class="mobile-nav-link">首页</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-archive"></i>
+                <a href="/archives" class="mobile-nav-link">归档</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-tag"></i>
+                <a href="/tags" class="mobile-nav-link">标签</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-about"></i>
+                <a href="/about/" class="mobile-nav-link">关于</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="main">
+    <div class="content-inner">
+        <div class="posts">
+    <article class="post-whole">
+        <div class="post-title">
+            <h2 class="title">https迁移流程</h2>
+            <div class="post-meta">
+                <span class="post-time">2017-03-20</span>
+                
+                <span class="post-category">
+                    
+                    <a class="category" href="/categories/网络/">网络</a>
+                    
+                </span>
+                
+                <span class="post-visit"> 阅读次数：<span id="busuanzi_value_page_pv"></span></span>
+            </div>
+        </div>
+        <div class="post-toc" id="post-toc">
+    <strong class="post-toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#let’s-Encrypt"><span class="toc-text">let’s Encrypt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定期更新"><span class="toc-text">定期更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#https应用中的一些注意点"><span class="toc-text">https应用中的一些注意点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#http请求的重定向"><span class="toc-text">http请求的重定向</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全站资源https化"><span class="toc-text">全站资源https化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#其他一些配置"><span class="toc-text">其他一些配置</span></a></li></ol></li></ol>
+    <div class="back-to-top" id="back-to-top">
+        <a href="javascript:void(0);">回到顶部</a>
+    </div>
+</div>
+        <div class="post-content">
+            <p>现在的大趋势是全站https，所以我也折腾了一下https，用的是let’s Encrypt的证书，然后使用nginx做https服务器，顺便也升级了一下到http2.0。</p>
+<a id="more"></a>
+
+<h3 id="let’s-Encrypt"><a href="#let’s-Encrypt" class="headerlink" title="let’s Encrypt"></a>let’s Encrypt</h3><p>使用非常简单，按照教程做就可以了。我这里用的是自动配置的方式，也提供高级的自定义配置。</p>
+<ol>
+<li>下载安装脚本并安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://dl.eff.org/certbot-auto</span><br><span class="line">chmod a+x certbot-auto</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>指定目录校验网站并生成证书</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./certbot-auto certonly --webroot -w /var/www/example -d example.com -d www.example.com -w /var/www/thing -d thing.is -d m.thing.is</span><br></pre></td></tr></table></figure>
+
+<p>生成证书后注意控制台的输出，到相应的live目录中获取生成的证书。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">README：说明文件</span><br><span class="line">fullchain.pem：证书文件</span><br><span class="line">privkey.pem：私钥</span><br><span class="line">chain.pem：OCSP(Online Certificate Status Protocol，在线证书状态协议)，用于在线验证证书</span><br><span class="line">cert.pem：</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>配置证书到nginx服务器配置中</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ssl on;                                                                                                                     </span><br><span class="line"><span class="comment">#证书文件</span></span><br><span class="line">ssl_certificate ssl/fullchain.pem;</span><br><span class="line">ssl_certificate_key ssl/privkey.pem;</span><br><span class="line"><span class="comment"># 配置支持 ocsp stapling</span></span><br><span class="line">ssl_trusted_certificate  ssl/chain.pem;</span><br></pre></td></tr></table></figure>
+
+<h3 id="定期更新"><a href="#定期更新" class="headerlink" title="定期更新"></a>定期更新</h3><ol>
+<li><p>使用更新命令  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/srv/certbot-auto renew</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/etc/letsencrypt/live/qieguo.me目录下会生成所需的认证套件，将其复制到/alidata/server/nginx/conf/ssl/下即可  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp /etc/letsencrypt/live/qieguo.me/* /alidata/server/nginx/conf/ssl/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启nginx  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/alidata/server/nginx/sbin/nginx -s reload</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将上述操作用crontab做成定时任务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#！/bin/bash    </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># renew.sh</span></span><br><span class="line">/srv/certbot-auto renew</span><br><span class="line">cp /etc/letsencrypt/live/qieguo.me/* /alidata/server/nginx/conf/ssl/</span><br><span class="line">/alidata/server/nginx/sbin/nginx -s reload</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>定时任务：<br>crontab -e<br>0 0 1 */3 * /alidata/renew-https-cert.sh</p>
+<p>NOTE：写完定时任务记得启动sudo service cron restart</p>
+<h3 id="https应用中的一些注意点"><a href="#https应用中的一些注意点" class="headerlink" title="https应用中的一些注意点"></a>https应用中的一些注意点</h3><h4 id="http请求的重定向"><a href="#http请求的重定向" class="headerlink" title="http请求的重定向"></a>http请求的重定向</h4><p>用户直接在浏览器地址栏输入网址时，浏览器默认会使用http进行访问；另外你的链接被别人分享的时候，也很有可能被写成http网址，<br>所以很多服务器都在http页面上使用30x重定向跳转来使用https协议访问：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen                              80;</span><br><span class="line">    server_name                         qieguo.me;</span><br><span class="line">    rewrite ^/(.*)$ https://<span class="variable">$host</span>/<span class="variable">$1</span> permanent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    listen                              443 ssl http2  spdy;</span><br><span class="line">    server_name                         qieguo.me;</span><br><span class="line">    include                             vhost/https.qieguo.me.inner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种模式不错，但是如果你的http页面被劫持了，那么用户根本到不了你的https页面，<br>也就意味着你精细准备的https根本派不上用场就被人截胡了。这时候你可以启动HSTS(HTTP Strict Transport Security)来让浏览器强制使用https访问。<br>HSTS可以让浏览器帮你做30x跳转，省一次HTTP请求。另外，浏览器本地替换可以保证只会发送HTTPS请求，避免被劫持。</p>
+<p>要使用HSTS，只需要在你的HTTPS网站响应头中，加入下面这行：</p>
+<blockquote>
+<p>strict-transport-security: max-age=16070400; includeSubDomains</p>
+</blockquote>
+<p>includeSubDomains是可选的，用来指定是否作用于子域名。支持HSTS的浏览器遇到这个响应头，会把当前网站加入HSTS列表，<br>然后在max-age指定的秒数内，当前网站所有请求都会被重定向为https。即使用户主动输入http://或者不输入协议部分，都将重定向到https://地址。</p>
+<p>但是HSTS需要浏览器先登录一次https页面之后才能生效，也就是说用户的首次登录仍然需要上述手动配置的rewrite跳转，这个环节的http访问依然有可能被劫持。如果你需要浏览器首次访问就直接强制使用https请求，那么你就需要在<a href="https://hstspreload.appspot.com登记你的域名，然后HSTS配置增加一个preload字段。如果你的网站通过审核，那么浏览器就会帮你做首次跳转了。" target="_blank" rel="noopener">https://hstspreload.appspot.com登记你的域名，然后HSTS配置增加一个preload字段。如果你的网站通过审核，那么浏览器就会帮你做首次跳转了。</a></p>
+<h4 id="全站资源https化"><a href="#全站资源https化" class="headerlink" title="全站资源https化"></a>全站资源https化</h4><p>决定要使用https之时，往往需要全站升级到https，避免出现Mixed Content的情况（在https站点中加载http资源）。因为加载的http资源如果是不安全的，那么启用https也没意义了。<br>另一方面，浏览器也越来越严格，Mixed Content资源在现代浏览器中可能已经加载不了了（尤其是js这种危险系数极高的资源）。<br>如果站点比较大，在全站往HTTPS迁移的过程中，工作量往往非常巨大，尤其是将所有资源都替换为 HTTPS 这一步，很容易产生疏漏。<br>这时候可以通过 upgrade-insecure-requests 这个 CSP 指令，可以让浏览器帮忙做这个转换。启用这个策略后，有两个变化：</p>
+<ul>
+<li>页面所有 HTTP 资源，会被替换为 HTTPS 地址再发起请求；</li>
+<li>页面所有站内链接，点击后会被替换为 HTTPS 地址再跳转；</li>
+</ul>
+<h4 id="其他一些配置"><a href="#其他一些配置" class="headerlink" title="其他一些配置"></a>其他一些配置</h4><ol>
+<li>旧版本的SSL并不安全，所以我们应该启用新的TLS并选择安全的加密套件（算法）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置只支持tls协议</span></span><br><span class="line">ssl_protocols TLSv1 TLSv1.1 TLSv1.2;</span><br><span class="line"></span><br><span class="line"><span class="comment"># SSL密码套件配置（不兼容IE6 / WinXP):</span></span><br><span class="line">ssl_ciphers  <span class="string">'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 兼容(IE6 / WinXP):</span></span><br><span class="line">ssl_ciphers <span class="string">"ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 强制指定使用服务器端的偏好</span></span><br><span class="line">ssl_prefer_server_ciphers on;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>向前保密的概念很简单：客户端和服务器协商一个可靠的密钥，并在会话结束后销毁。服务器中的RSA私钥用来签名客户端和服务器之间交换的Diffie-Hellman密钥。副主密钥从Diffie-Hellman握手中得到，并用于加密。由于副主密钥在客户端和服务器之间的连接中是明确具体的，并用于有限的时间，因此被叫作Ephemeral(短暂的)。由于有Forward Secrecy，即使攻击者持有服务器的私钥，也不能够解密过去的会话。私钥仅仅用来签名DH（Diffie-Hellman）的握手，它并没有泄漏副主密钥。Diffie-Hellman确保了副主密钥不会离开客户端和服务器，也不会被中间人截获。<br>但由于我们正在使用一个2048位的证书，DHE客户端比非ephemeral客户端将使用一个更弱的密钥(1024位)交换。所以我们要单独生成一个2048位的DHE参数：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#配置支持 Perfect Forward Secrecy</span></span><br><span class="line">ssl_dhparam ssl/dhparam.pem;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>OCSP一次只获取一条记录。但是副作用是，当连接到服务器的时候，OCSP请求必须发送到第三方响应者，这增加了延迟，以及失败的可能。实际上，OCSP响应者由CA操控，由于它常常不可靠，导致浏览器由于收不到适时的响应而失败。这减少了安全性，因为它允许攻击者对OCSP响应者进行DoS攻击来取消验证。解决方案是在TLS握手期间，允许服务器发送缓存的OCSP记录，这样来绕过OCSP响应者。这个技术节省了在客户端和OCSP响应者之间的一个来回，称为OCSP闭合（OCSP Stapling）。服务器只在客户端请求的时候，发送一个缓存的OCSP响应，通过对CLIENT HELLO的status_request TLS拓展来声明支持。大多数服务器都会缓存OCSP响应到48小时。在常规间隔，服务器会连接到CA的OCSP响应者来获取最新的OCSP记录。OCSP响应者的位置是从签名证书的Authority Information Access 字段来获取。</li>
+</ol>
+<blockquote>
+<p>OCSP(Online Certificate Status Protocol，在线证书状态协议)是维护服务器和其它网络资源安全性的两种普遍模式之一。OCSP克服了证书注销列表（CRL）的主要缺陷：必须经常在客户端下载以确保列表的更新。当用户试图访问一个服务器时，在线证书状态协议发送一个对于证书状态信息的请求。服务器回复一个“有效”、“过期”或“未知”的响应。协议规定了服务器和客户端应用程序的通讯语法。在线证书状态协议给了用户的到期的证书一个宽限期，这样他们就可以在更新以前的一段时间内继续访问服务器。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置支持 ocsp stapling</span></span><br><span class="line">ssl_trusted_certificate  ssl/chain.pem;</span><br><span class="line">ssl_stapling on;</span><br><span class="line">ssl_stapling_verify on;</span><br><span class="line">resolver 223.5.5.5 223.6.6.6 valid=300s; <span class="comment">#AliDNS 阿里公共DNS</span></span><br><span class="line">resolver_timeout 15s;</span><br></pre></td></tr></table></figure>
+        </div>
+        
+        <div class="post-tag">
+            
+            <a class="tag" href="/tags/网络/" title="网络">网络</a>
+            
+            <a class="tag" href="/tags/https/" title="https">https</a>
+            
+        </div>
+        
+    </article>
+</div>
+<div class="paginator">
+    
+        
+        
+            <a class="next" href="/2017/02/13/https时代来了，你却还一无所知？/">
+                <span class="nav-default">https时代来了，你却还一无所知？</span>
+                <span class="nav-mobile">下一篇</span>
+                <i class="iconfont icon-next"></i>
+            </a>
+        
+    
+</div>
+<div id="comment-container"></div>
+    </div>
+</div>
+<footer class="footer-social">
+    
+
+    
+
+    
+
+    <div class="footer-copyright">
+        <p class="time-line">
+            &copy;
+            
+            
+            2019
+            &nbsp;<i class="iconfont icon-heart"></i>&nbsp;
+            <a target="_blank" href="https://github.com/iJinxin">茄果</a>
+        </p>
+        <p class="theme-info">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme -
+            <a target="_blank" href="https://github.com/iJinxin/hexo-theme-sky">Sky</a>
+        </p>
+    </div>
+</footer>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    
+
+</script>
+</html>

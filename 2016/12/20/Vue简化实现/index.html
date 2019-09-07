@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>茄果的博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_859455_eaq7v6w8ktj.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-title">
+
+        </div>
+        <nav class="header-nav">
+            
+            <a href="/" class="header-nav-link" >
+                首页
+            </a>
+            
+
+            
+            <a href="/archives" class="header-nav-link">
+                归档
+            </a>
+            
+
+            
+
+            
+            <a href="/about/" class="header-nav-link">
+                关于
+            </a>
+            
+        </nav>
+    </div>
+</header>
+<header class="mobile-header">
+    <div class="mobile-nav">
+        <div class="mobile-nav-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-nav-title">
+            <a href="/" class="mobile-nav-title-link">茄果's Blog</a>
+        </div>
+
+    </div>
+    <nav class="mobile-menu">
+        <ul class="mobile-menu-list">
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-home"></i>
+                <a href="/" class="mobile-nav-link">首页</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-archive"></i>
+                <a href="/archives" class="mobile-nav-link">归档</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-tag"></i>
+                <a href="/tags" class="mobile-nav-link">标签</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-about"></i>
+                <a href="/about/" class="mobile-nav-link">关于</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="main">
+    <div class="content-inner">
+        <div class="posts">
+    <article class="post-whole">
+        <div class="post-title">
+            <h2 class="title">Vue MVVM双向绑定实现</h2>
+            <div class="post-meta">
+                <span class="post-time">2016-12-20</span>
+                
+                <span class="post-category">
+                    
+                    <a class="category" href="/categories/前端/">前端</a>
+                    
+                </span>
+                
+                <span class="post-visit"> 阅读次数：<span id="busuanzi_value_page_pv"></span></span>
+            </div>
+        </div>
+        <div class="post-toc" id="post-toc">
+    <strong class="post-toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-MVVM双向绑定实现"><span class="toc-text">Vue MVVM双向绑定实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简单粗暴版"><span class="toc-text">简单粗暴版</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Observer"><span class="toc-text">Observer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compiler"><span class="toc-text">Compiler</span></a></li></ol></li></ol>
+    <div class="back-to-top" id="back-to-top">
+        <a href="javascript:void(0);">回到顶部</a>
+    </div>
+</div>
+        <div class="post-content">
+            <h2 id="Vue-MVVM双向绑定实现"><a href="#Vue-MVVM双向绑定实现" class="headerlink" title="Vue MVVM双向绑定实现"></a>Vue MVVM双向绑定实现</h2><p>这也是mvvm框架的基本模式，模型的变化驱动视图的更新，交互事件驱动模型的变化。<br>由于原生js直接提供了交互事件的接口，所以各种框架都是监听各种交互时间来实现数据模型的更新；在监听模型变化方面则产生了3种方式：<br>1) 订阅者发布者模式，backbone、knockout等框架<br>   使用vm.set(‘property’, value)或者property(value)这些函数的方式实现对数据的读写，从而触发更新事件。<br>2) 脏检查，angular1.x<br>   通过$digest()函数遍历watcher（非模型数据，而是一个被监视的带有处理函数的数据集），检查到脏数据的时候触发更新事件。<br>   通过封装DOM、Http、定时器等交互事件自动调用$digest()，或者用户手动调用$digest()、$apply()来触发脏检查机制。<br>3) 数据劫持，Vue、Avalon<br>   通过Object.defineProperty劫持了Object的getter、setter事件，从而直接监听到模型数据的变更，继而触发更新事件。</p>
+<a id="more"></a>
+
+<h3 id="简单粗暴版"><a href="#简单粗暴版" class="headerlink" title="简单粗暴版"></a>简单粗暴版</h3><p>Vue通过劫持getter、setter来实现对数据的监听，从而实现数据到视图的自动更新。<br>按照mvvm模型可以得到一个最简单粗暴的实现：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h3</span>&gt;</span>Vue mvvm simple model<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h2</span> <span class="attr">v-text</span>=<span class="string">"title"</span>&gt;</span><span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> <span class="attr">v-text</span>=<span class="string">"name"</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"name"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Vue</span>(<span class="params">opt</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.data = opt.data || &#123;&#125;;</span><br><span class="line">  <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el) || <span class="built_in">document</span>.body;</span><br><span class="line">  <span class="keyword">var</span> textDom = <span class="keyword">this</span>.$el.querySelectorAll(<span class="string">'[v-text]'</span>);</span><br><span class="line">  <span class="keyword">var</span> modelDom = <span class="keyword">this</span>.$el.querySelectorAll(<span class="string">'[v-model]'</span>);</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">observe</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 设置开始和递归终止条件</span></span><br><span class="line">    <span class="keyword">if</span> (!data || <span class="keyword">typeof</span> data !== <span class="string">'object'</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 不能直接使用for循环，避开闭包陷阱</span></span><br><span class="line">    <span class="built_in">Object</span>.keys(data).forEach(<span class="function"><span class="keyword">function</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">      defineReactive(data, key, data[key]);</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">defineReactive</span>(<span class="params">data, key, val</span>) </span>&#123;</span><br><span class="line">    observe(val);   <span class="comment">// 递归对象属性到基本类型为止</span></span><br><span class="line">    <span class="built_in">Object</span>.defineProperty(data, key, &#123;</span><br><span class="line">      enumerable  : <span class="literal">true</span>,    <span class="comment">// 枚举</span></span><br><span class="line">      configurable: <span class="literal">false</span>, <span class="comment">// 不可再配置</span></span><br><span class="line">      <span class="keyword">get</span>         : function () &#123;</span><br><span class="line">        <span class="keyword">return</span> val;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="keyword">set</span>         : function (newVal) &#123;</span><br><span class="line">        <span class="keyword">if</span> (val === newVal) &#123;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        val = newVal;  <span class="comment">// setter本身已经做了赋值，val作为一个闭包变量，保存最新值</span></span><br><span class="line">        model2View();</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">model2View</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    textDom.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">node</span>) </span>&#123;</span><br><span class="line">      node.innerText = self.data[node.getAttribute(<span class="string">'v-text'</span>)];</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">watch</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    modelDom.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">node</span>) </span>&#123;</span><br><span class="line">      node.addEventListener(<span class="string">'keyup'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        self.data[node.getAttribute(<span class="string">'v-model'</span>)] = node.value;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  observe(<span class="keyword">this</span>.data);</span><br><span class="line">  model2View();</span><br><span class="line">  watch();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  el  : <span class="string">'#app'</span>,</span><br><span class="line">  data: &#123;</span><br><span class="line">    name : <span class="string">'Vue'</span>,</span><br><span class="line">    title: <span class="string">'Hello Vue!'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>上面例子比较粗糙，主要问题有：<br>1) 直接对绑定的节点进行全量更新，比较浪费性能；<br>2) 直接使用选择器来选定节点也不够灵活，需要专门定义一个编译函数来编译模板。<br>3) 对数据的更新也只是单纯的赋值，而在实际应用中我们也经常会用到如v-text=”‘hello ‘+name”的表达式，所以也要支持表达式绑定；</p>
+<p>上面例子也完全没有结构可言，下面按照Observer、Watcher、Compiler的主要结构来进行划分。功能划分：<br>1） Observer实现对vm的监视<br>2） Compiler实现对模板的编译，将vm绑定到视图上<br>3） Watcher连接Observer与Compiler，订阅Observer消息后触发视图更新</p>
+<p>另外三大模块内还有dependence、parser、updater等各种小模块。</p>
+<h3 id="Observer"><a href="#Observer" class="headerlink" title="Observer"></a>Observer</h3><p>web应用中数据的流动是数据的变更引起相应依赖数据的变更、从而更新相应的视图，所以首先在Observer中增加对数据的依赖追踪。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Observer</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Observer</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.data = data;</span><br><span class="line">  <span class="keyword">this</span>.observe(data);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Observer.prototype.observe = <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="comment">// 设置开始和递归终止条件</span></span><br><span class="line">  <span class="keyword">if</span> (!data || <span class="keyword">typeof</span> data !== <span class="string">'object'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 不能直接使用for循环，避开闭包陷阱</span></span><br><span class="line">  <span class="built_in">Object</span>.keys(data).forEach(<span class="function"><span class="keyword">function</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">    self.defineReactive(data, key, data[key]);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Observer.prototype.defineReactive = <span class="function"><span class="keyword">function</span> (<span class="params">data, key, val</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> dep = <span class="keyword">new</span> Dep();</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">  self.observe(val);   <span class="comment">// 递归对象属性到基本类型为止</span></span><br><span class="line">  <span class="built_in">Object</span>.defineProperty(data, key, &#123;</span><br><span class="line">    enumerable  : <span class="literal">true</span>,    <span class="comment">// 枚举</span></span><br><span class="line">    configurable: <span class="literal">false</span>, <span class="comment">// 不可再配置</span></span><br><span class="line">    <span class="keyword">get</span>         : function () &#123;</span><br><span class="line">      <span class="comment">// 由于需要在闭包内添加watcher，所以通过Dep定义一个全局target属性，暂存watcher, 添加完移除</span></span><br><span class="line">      Dep.target &amp;&amp; dep.addSub(Dep.target);</span><br><span class="line">      <span class="keyword">return</span> val;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span>         : function (newVal) &#123;</span><br><span class="line">      <span class="keyword">if</span> (val === newVal) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      val = newVal;  <span class="comment">// setter本身已经做了赋值，val作为一个闭包变量，保存最新值</span></span><br><span class="line">      self.observe(newVal);</span><br><span class="line">      dep.notify(newVal);  <span class="comment">// 触发通知</span></span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// dependence</span></span><br><span class="line"><span class="keyword">var</span> Dep = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.subs = &#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Dep.prototype.addSub = <span class="function"><span class="keyword">function</span> (<span class="params">target</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>.subs[target.uid]) &#123;  <span class="comment">//防止重复添加</span></span><br><span class="line">    <span class="keyword">this</span>.subs[target.uid] = target;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Dep.prototype.notify = <span class="function"><span class="keyword">function</span> (<span class="params">newVal</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> uid <span class="keyword">in</span> <span class="keyword">this</span>.subs) &#123;</span><br><span class="line">    <span class="keyword">this</span>.subs[uid].update(newVal);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>通过Dep.target可以控制是否增加订阅者，而在setter的时候去更新订阅者列表从而出发相应依赖项的更新。</p>
+<h3 id="Compiler"><a href="#Compiler" class="headerlink" title="Compiler"></a>Compiler</h3><p>定义专门的Compiler来将DOM节点编译成绑定表达式绑定到视图上。为了提高效率，需要先将目标的DOM节点复制到 documentFragment 中进行遍历编译，完成后再将其挂靠回DOM节点树中。<br>vue 1.0中的指令解析还是依赖于各种dom方法，这样做的好处是可以充分利用底层函数，降低解析算法的复杂度。<br>但是另外一方面这种做法却依赖于浏览器环境，无法在本地node环境里面做预编译，另外效率上也有可优化的空间，所以vue 2.0就直接写了一个语法解析器来解析Vue指令。</p>
+
+        </div>
+        
+        <div class="post-tag">
+            
+            <a class="tag" href="/tags/MVCC/" title="MVCC">MVCC</a>
+            
+            <a class="tag" href="/tags/前端框架/" title="前端框架">前端框架</a>
+            
+            <a class="tag" href="/tags/Vue/" title="Vue">Vue</a>
+            
+        </div>
+        
+    </article>
+</div>
+<div class="paginator">
+    
+        
+            <a class="prev" href="/2017/02/13/https时代来了，你却还一无所知？/">
+                <i class="iconfont icon-prev"></i>
+                <span class="nav-default">https时代来了，你却还一无所知？</span>
+                <span class="nav-mobile">上一篇</span>
+            </a>
+        
+        
+            <a class="next" href="/2016/09/20/Angular数据视图双向绑定的简单实现/">
+                <span class="nav-default">数据视图双向绑定的简单实现</span>
+                <span class="nav-mobile">下一篇</span>
+                <i class="iconfont icon-next"></i>
+            </a>
+        
+    
+</div>
+<div id="comment-container"></div>
+    </div>
+</div>
+<footer class="footer-social">
+    
+
+    
+
+    
+
+    <div class="footer-copyright">
+        <p class="time-line">
+            &copy;
+            
+            
+            2019
+            &nbsp;<i class="iconfont icon-heart"></i>&nbsp;
+            <a target="_blank" href="https://github.com/iJinxin">茄果</a>
+        </p>
+        <p class="theme-info">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme -
+            <a target="_blank" href="https://github.com/iJinxin/hexo-theme-sky">Sky</a>
+        </p>
+    </div>
+</footer>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    
+
+</script>
+</html>
