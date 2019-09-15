@@ -76,6 +76,36 @@
     
         <article class="post-abstract">
             <div class="post-title">
+                <h2><a class="post-title-link" href="/2019/09/14/【golang知多少】- GC/">【golang知多少】- GC (Garbage Collection)</a></h2>
+            </div>
+            <div class="post-meta">
+                <span class="post-time">2019-09-14</span>
+                
+                <span class="post-category">
+                    
+                    <a class="category" href="/categories/golang/">golang</a>
+                    
+                </span>
+                
+            </div>
+            <div class="post-content">
+                
+                    <p>在使用golang进行日常开发的时候一般不会关注gc性能，但如果出现内存泄露的话，不懂gc的话可能根本没有排查的头绪。因此去找些资料看了golang的gc策略，看完感觉与JVM的gc策略有很多相似之处，在这里简单做个总结归纳。</p>
+<blockquote>
+<p>我这里看的golang版本都是1.9+的策略，老版本的策略不再分析。</p>
+</blockquote>
+                    <div class="read-more">
+                        <a href="/2019/09/14/【golang知多少】- GC/" class="read-more-link">
+                            阅读全文
+                            <i class="iconfont icon-readmore"></i>
+                        </a>
+                    </div>
+                
+            </div>
+        </article>
+    
+        <article class="post-abstract">
+            <div class="post-title">
                 <h2><a class="post-title-link" href="/2017/03/20/https应用/">https迁移流程</a></h2>
             </div>
             <div class="post-meta">
@@ -150,7 +180,7 @@
             </div>
             <div class="post-content">
                 
-                    <h2 id="Vue-MVVM双向绑定实现"><a href="#Vue-MVVM双向绑定实现" class="headerlink" title="Vue MVVM双向绑定实现"></a>Vue MVVM双向绑定实现</h2><p>这也是mvvm框架的基本模式，模型的变化驱动视图的更新，交互事件驱动模型的变化。<br>由于原生js直接提供了交互事件的接口，所以各种框架都是监听各种交互时间来实现数据模型的更新；在监听模型变化方面则产生了3种方式：<br>1) 订阅者发布者模式，backbone、knockout等框架<br>   使用vm.set(‘property’, value)或者property(value)这些函数的方式实现对数据的读写，从而触发更新事件。<br>2) 脏检查，angular1.x<br>   通过$digest()函数遍历watcher（非模型数据，而是一个被监视的带有处理函数的数据集），检查到脏数据的时候触发更新事件。<br>   通过封装DOM、Http、定时器等交互事件自动调用$digest()，或者用户手动调用$digest()、$apply()来触发脏检查机制。<br>3) 数据劫持，Vue、Avalon<br>   通过Object.defineProperty劫持了Object的getter、setter事件，从而直接监听到模型数据的变更，继而触发更新事件。</p>
+                    <p>这也是mvvm框架的基本模式，模型的变化驱动视图的更新，交互事件驱动模型的变化。<br>由于原生js直接提供了交互事件的接口，所以各种框架都是监听各种交互时间来实现数据模型的更新；在监听模型变化方面则产生了3种方式：</p>
                     <div class="read-more">
                         <a href="/2016/12/20/Vue简化实现/" class="read-more-link">
                             阅读全文

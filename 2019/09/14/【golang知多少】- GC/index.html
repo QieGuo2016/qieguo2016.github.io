@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <title>茄果的博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_859455_eaq7v6w8ktj.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-title">
+
+        </div>
+        <nav class="header-nav">
+            
+            <a href="/" class="header-nav-link" >
+                首页
+            </a>
+            
+
+            
+            <a href="/archives" class="header-nav-link">
+                归档
+            </a>
+            
+
+            
+
+            
+            <a href="/about/" class="header-nav-link">
+                关于
+            </a>
+            
+        </nav>
+    </div>
+</header>
+<header class="mobile-header">
+    <div class="mobile-nav">
+        <div class="mobile-nav-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-nav-title">
+            <a href="/" class="mobile-nav-title-link">茄果's Blog</a>
+        </div>
+
+    </div>
+    <nav class="mobile-menu">
+        <ul class="mobile-menu-list">
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-home"></i>
+                <a href="/" class="mobile-nav-link">首页</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-archive"></i>
+                <a href="/archives" class="mobile-nav-link">归档</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-tag"></i>
+                <a href="/tags" class="mobile-nav-link">标签</a>
+            </li>
+            <li class="mobile-menu-item">
+                <i class="iconfont icon-about"></i>
+                <a href="/about/" class="mobile-nav-link">关于</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="main">
+    <div class="content-inner">
+        <div class="posts">
+    <article class="post-whole">
+        <div class="post-title">
+            <h2 class="title">【golang知多少】- GC (Garbage Collection)</h2>
+            <div class="post-meta">
+                <span class="post-time">2019-09-14</span>
+                
+                <span class="post-category">
+                    
+                    <a class="category" href="/categories/golang/">golang</a>
+                    
+                </span>
+                
+                <span class="post-visit"> 阅读次数：<span id="busuanzi_value_page_pv"></span></span>
+            </div>
+        </div>
+        <div class="post-toc" id="post-toc">
+    <strong class="post-toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是垃圾回收"><span class="toc-text">什么是垃圾回收</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#垃圾回收算法"><span class="toc-text">垃圾回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引用计数"><span class="toc-text">引用计数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记清除"><span class="toc-text">标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复制收集"><span class="toc-text">复制收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记整理"><span class="toc-text">标记整理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并发标记清除"><span class="toc-text">并发标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分代处理"><span class="toc-text">分代处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#golang的gc"><span class="toc-text">golang的gc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写屏障"><span class="toc-text">写屏障</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#STW"><span class="toc-text">STW</span></a></li></ol></li></ol>
+    <div class="back-to-top" id="back-to-top">
+        <a href="javascript:void(0);">回到顶部</a>
+    </div>
+</div>
+        <div class="post-content">
+            <p>在使用golang进行日常开发的时候一般不会关注gc性能，但如果出现内存泄露的话，不懂gc的话可能根本没有排查的头绪。因此去找些资料看了golang的gc策略，看完感觉与JVM的gc策略有很多相似之处，在这里简单做个总结归纳。</p>
+<blockquote>
+<p>我这里看的golang版本都是1.9+的策略，老版本的策略不再分析。</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="什么是垃圾回收"><a href="#什么是垃圾回收" class="headerlink" title="什么是垃圾回收"></a>什么是垃圾回收</h2><p>在偏硬件的编程语言里面(c/c++)，程序员都是直接管理内存的，在使用内存的时候需要程序员手动分配内存和释放内存，否则就容易发生内存泄露的问题。管理内存给程序员带来了不少的心智负担，所以很多语言都内置了一套内存管理机制，程序员只需要关注内存申请即可，内存的释放交给语言层处理，这种回收不用的内存空间的技术就是垃圾回收机制。</p>
+<h2 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h2><p>垃圾回收其实是一个很古老的话题了，经过多年的发展，产生了很多种垃圾回收的算法，其中最为基础的是<code>引用计数</code>，<code>标记清除</code>这两种，其他算法都是在这些基础上的优化。</p>
+<h3 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h3><p>引用计数的策略非常简单，当一个对象被引用的时候，就将该对象的引用计数器加1，解除引用的时候就将计数器减1，当计数器为0的时候，就说明对象不被引用，这个对象再也不会被使用到了，在垃圾回收的时候就可以清理计数器为0的对象。</p>
+<p>引用计数算法的优点比较明显：</p>
+<ol>
+<li>渐进式gc，不同于其他算法在达到内存阈值的进行gc，引用计数可以分散在程序执行的各个阶段，不需要stw(stop the world)</li>
+<li>算法简单，易于实现</li>
+</ol>
+<p>但引用计数算法也有两个较为明显的缺点：</p>
+<ol>
+<li>每次对象的引用和删除都需要变更计数器，频繁更新计数器会降低程序性能</li>
+<li>无法处理循环引用的问题，即使循环引用的两个对象都不被其他对象引用了，由于计数器不为0，对象空间还是不能被回收。<br>当然上面两个问题也并非无解，只是解决起来整个算法的复杂度会比较高。</li>
+</ol>
+<h3 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h3><p>标记清除分为<code>标记</code>和<code>清除</code>两步，其中<code>标记</code>是从跟根结点出发遍历所有节点的引用对象，遍历结束之后就可以定位到不被引用的对象，也就是可回收的对象；<code>清除</code>就是清理可回收对象。标记清除算法有几个缺点：</p>
+<ol>
+<li>标记阶段需要STW：只有所有线程停止运行，保证内存中的对象引用关系不变，才可以得到准确的引用关系</li>
+<li>清除阶段产生内存碎片：可回收对象散步在内存各处，直接清理的话会产生很多内存碎片，直接影响大对象的分配</li>
+</ol>
+<h3 id="复制收集"><a href="#复制收集" class="headerlink" title="复制收集"></a>复制收集</h3><p>复制收集是对基础标记清除算法的一个改进，它是将内存一分为2，每次只使用一半的空间，gc的时候先标记对象，然后将存活的对象复制到另外一边，然后清理原空间即可。在复制的时候按照顺序分配的原则就可以保证没有内存碎片。这个算法的效率较高，但是缺点就是空了一半内存，内存使用率不高。</p>
+<h3 id="标记整理"><a href="#标记整理" class="headerlink" title="标记整理"></a>标记整理</h3><p>标记整理也是对标记清除算法的改进，改善了内存碎片的状况，具体来说是将存活的对象往内存的一侧移动，保证内存的规整。</p>
+<h3 id="并发标记清除"><a href="#并发标记清除" class="headerlink" title="并发标记清除"></a>并发标记清除</h3><p>并发标记清除CMS(concurrency mark sweep)主要的优化目标是减少程序停顿(stw)的时间，主要是将标记和清除这两个阶段都并发化提高效率，这里的并发指的是与用户程序一起并发。首先被标记为可回收的对象都是程序中再也不会用到的对象，所以清除阶段的并发不会产生问题；但是标记阶段如果并发的话，用户程序可能会更改已标记的对象，或者产生新的对象，所以需要将并发阶段更新的对象记录下来。整体分为4个步骤：</p>
+<ol>
+<li>初始标记，这个阶段是标记根对象(全局对象和线程栈上的对象)。其中标记全局对象需要stw，标记线程栈只需要暂时目标线程即可。</li>
+<li>并发标记，这个阶段是并发遍历根对象的引用对象</li>
+<li>重新标记，这个阶段是重新标记在阶段2发生变更的对象，需要stw保证引用关系一致性</li>
+<li>并发清除</li>
+</ol>
+<p>CMS虽然已经极大地减少了stw的时间，但是它还存在几个问题：</p>
+<ol>
+<li>CMS使用并发的方式执行gc，会拉长整个gc的持续时间，另外gc期间会占用一定的cpu资源，导致响应变慢，吞吐量降低</li>
+<li>CMS是标注清除算法，也就意味着会有内存碎片的产生</li>
+</ol>
+<h3 id="分代处理"><a href="#分代处理" class="headerlink" title="分代处理"></a>分代处理</h3><p>分代处理不是垃圾回收算法，它是一种将对象按照存活时间分为新生代和老年代、并为不同分代采取不同gc算法的策略。按照局部性原理，程序中大量的对象存活时间都非常短，而存活时间较久的对象也将继续存活下去。因此新生代所需的空间相对较小，而老年代的空间较大。根据这个特点，新生代一般采用复制收集算法，而老年代则搭配CMS算法。</p>
+<h2 id="golang的gc"><a href="#golang的gc" class="headerlink" title="golang的gc"></a>golang的gc</h2><p>golang的gc使用了三色标记的CMS算法。gc的触发时机有3种：</p>
+<ol>
+<li>阈值：默认内存扩大一倍的时候触发一次gc</li>
+<li>定时：默认两分钟执行一次gc</li>
+<li>手动：手动调用runtime.GC()</li>
+</ol>
+<p>三色标记指的是白灰黑三种颜色，含义如下：</p>
+<ul>
+<li>白色：对象未标记</li>
+<li>灰色：对象已经标记，但是子对象未标记</li>
+<li>黑色：对象已经标记，且子对象也已经标记</li>
+</ul>
+<p>三色标记的大概流程：</p>
+<ol>
+<li>所有对象最开始都是白色。</li>
+<li>从根节点遍历所有可触达的对象，标记为灰色，放入灰色队列中</li>
+<li>遍历灰色对象队列，将其引用对象标记为灰色，将自身标记为黑色</li>
+<li>继续遍历直达灰色对象队列为空，此时所有对象只有白色和黑色两种，完成标记</li>
+</ol>
+<p>详细的过程如下图所示：<br><img src="/images/golang_gc_01.png" alt="gc phase"><br>上图各步骤含义：</p>
+<ol>
+<li>从根节点开始遍历，根结点包括全局指针和goroutine栈上的指针；遍历全局指针需要stw，遍历goroutine栈时则只堵塞目标goroutine；在遍历goroutine stack的前需要stw打开写屏障。</li>
+<li>遍历灰色对象直到灰色对象队列为空，在此阶段中gc和用户程序是并发的，期间发生引用变更的对象都通过写屏障记录起来</li>
+<li>重新扫描阶段2记录下来的对象，为保持引用关系一致性，需要stw</li>
+<li>并发清除不可达对象(白色)，如果此次gc持续到下次gc开始，那么跟下次gc一期执行，gc周期会有叠加的风险。</li>
+</ol>
+<h3 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h3><p>因为并发标记过程中用户程序也在运行，期间会有新的对象产生、也会对已经标记的对象进行更改，打开了写屏障之后在发生对象内存修改的时候，会先判断对象的引用链，进行标注处理。在最新的runtime里面，采用了混合写屏障，已经可以去掉re-scan这一步了。</p>
+<h3 id="STW"><a href="#STW" class="headerlink" title="STW"></a>STW</h3><p>上文频繁提到stw(stop the world)，如何实现stw？go的gmp模型里面，所有g都需要绑定到p上面才可以执行，而p存在空闲和运行中两种状态，那么第一步就是通知空闲状态的p不再接活。正在运行中的p里面可能有好几个g在运行，这时候就需要终止所有正在运行中的g。这里需要注意的是，go的抢占式调度并非如操作系统那样可以直接换出线程，go实际上用的是伪抢占式：runtime给g设置抢占标志，g在发生系统调用、io操作、channel操作等一系列堵塞操作及函数调用的时候将自己的控制权让出来。所以stw的实现归纳起来就是：</p>
+<ol>
+<li>设置空闲p的状态为停止</li>
+<li>设置正在运行的g的抢占标志位，等待g主动停止运行，g的停止时机是发生系统调用、堵塞操作及函数调用</li>
+</ol>
+
+        </div>
+        
+        <div class="post-tag">
+            
+            <a class="tag" href="/tags/golang/" title="golang">golang</a>
+            
+            <a class="tag" href="/tags/gc/" title="gc">gc</a>
+            
+            <a class="tag" href="/tags/垃圾回收/" title="垃圾回收">垃圾回收</a>
+            
+            <a class="tag" href="/tags/Garbage-Collection/" title="Garbage Collection">Garbage Collection</a>
+            
+        </div>
+        
+    </article>
+</div>
+<div class="paginator">
+    
+        
+        
+            <a class="next" href="/2017/03/20/https应用/">
+                <span class="nav-default">https迁移流程</span>
+                <span class="nav-mobile">下一篇</span>
+                <i class="iconfont icon-next"></i>
+            </a>
+        
+    
+</div>
+<div id="comment-container"></div>
+    </div>
+</div>
+<footer class="footer-social">
+    
+    <a class="social-link" target="_blank" href="https://github.com/qieguo2016">
+        <i class="iconfont icon-github"></i>
+    </a>
+    
+
+    
+
+    
+
+    <div class="footer-copyright">
+        <p class="time-line">
+            &copy;
+            
+            
+            2019
+            &nbsp;<i class="iconfont icon-heart"></i>&nbsp;
+            <a target="_blank" href="https://github.com/qieguo2016">茄果</a>
+        </p>
+        <p class="theme-info">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme -
+            <a target="_blank" href="https://github.com/iJinxin/hexo-theme-sky">Sky</a>
+        </p>
+    </div>
+</footer>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    
+
+</script>
+</html>
