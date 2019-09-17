@@ -90,7 +90,7 @@
         </div>
         <div class="post-toc" id="post-toc">
     <strong class="post-toc-title">目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是垃圾回收"><span class="toc-text">什么是垃圾回收</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#垃圾回收算法"><span class="toc-text">垃圾回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引用计数"><span class="toc-text">引用计数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记清除"><span class="toc-text">标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复制收集"><span class="toc-text">复制收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记整理"><span class="toc-text">标记整理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并发标记清除"><span class="toc-text">并发标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分代处理"><span class="toc-text">分代处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#golang的gc"><span class="toc-text">golang的gc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写屏障"><span class="toc-text">写屏障</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#STW"><span class="toc-text">STW</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是垃圾回收"><span class="toc-text">什么是垃圾回收</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#垃圾回收算法"><span class="toc-text">垃圾回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引用计数"><span class="toc-text">引用计数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记清除"><span class="toc-text">标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复制收集"><span class="toc-text">复制收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#标记整理"><span class="toc-text">标记整理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并发标记清除"><span class="toc-text">并发标记清除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分代处理"><span class="toc-text">分代处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#golang的gc"><span class="toc-text">golang的gc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写屏障"><span class="toc-text">写屏障</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#STW"><span class="toc-text">STW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol></li></ol>
     <div class="back-to-top" id="back-to-top">
         <a href="javascript:void(0);">回到顶部</a>
     </div>
@@ -162,10 +162,14 @@
 <li>并发清除不可达对象(白色)，如果此次gc持续到下次gc开始，那么跟下次gc一期执行，gc周期会有叠加的风险。</li>
 </ol>
 <h3 id="写屏障"><a href="#写屏障" class="headerlink" title="写屏障"></a>写屏障</h3><p>因为并发标记过程中用户程序也在运行，期间会有新的对象产生、也会对已经标记的对象进行更改，打开了写屏障之后在发生对象内存修改的时候，会先判断对象的引用链，进行标注处理。在最新的runtime里面，采用了混合写屏障，已经可以去掉re-scan这一步了。</p>
-<h3 id="STW"><a href="#STW" class="headerlink" title="STW"></a>STW</h3><p>上文频繁提到stw(stop the world)，如何实现stw？go的gmp模型里面，所有g都需要绑定到p上面才可以执行，而p存在空闲和运行中两种状态，那么第一步就是通知空闲状态的p不再接活。正在运行中的p里面可能有好几个g在运行，这时候就需要终止所有正在运行中的g。这里需要注意的是，go的抢占式调度并非如操作系统那样可以直接换出线程，go实际上用的是伪抢占式：runtime给g设置抢占标志，g在发生系统调用、io操作、channel操作等一系列堵塞操作及函数调用的时候将自己的控制权让出来。所以stw的实现归纳起来就是：</p>
+<h3 id="STW"><a href="#STW" class="headerlink" title="STW"></a>STW</h3><p>上文频繁提到stw(stop the world)，如何实现stw？<br>go的gmp模型里面，所有g都需要绑定到p上面才可以执行，而p存在空闲和运行中两种状态，那么第一步就是通知空闲状态的p不再接活。正在运行中的p里面可能有好几个g在运行，这时候就需要终止所有正在运行中的g。这里需要注意的是，go的抢占式调度并非如操作系统那样可以直接换出线程，go实际上用的是伪抢占式：runtime给g设置抢占标志，g在发生系统调用、io操作、channel操作等一系列堵塞操作及函数调用的时候将自己的控制权让出来。所以stw的实现归纳起来就是：</p>
 <ol>
 <li>设置空闲p的状态为停止</li>
 <li>设置正在运行的g的抢占标志位，等待g主动停止运行，g的停止时机是发生系统调用、堵塞操作及函数调用</li>
+</ol>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ol>
+<li>《深入理解Java虚拟机》周志明</li>
+<li><a href="https://studygolang.com/articles/17432?fr=sidebar" target="_blank" rel="noopener">https://studygolang.com/articles/17432?fr=sidebar</a></li>
 </ol>
 
         </div>
